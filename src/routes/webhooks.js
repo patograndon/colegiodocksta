@@ -11,12 +11,40 @@ const TIMER_MS = {
   whatsapp: parseInt(process.env.ABANDONMENT_TIMER_CHAT)  || 300_000,
 };
 
-// POST /api/webhook/nuevo-contacto
+// ID de fallback: Fundación Comunidad Viva (escuelas.id = 1)
+const ESCUELA_FUNDACION = 1;
+
+// ── Enrutamiento telefónico: busca escuela_id por número destino ──────────────
+// Usa índices en whatsapp_oficial / vapi_phone_id → ~2-5ms
+async function resolverEscuela(toNumber, canal) {
+  if (!toNumber) return ESCUELA_FUNDACION;
+
+  const col = canal === 'whatsapp' ? 'whatsapp_oficial' : 'vapi_phone_id';
+  try {
+    const { rows } = await query(
+      `SELECT id FROM escuelas WHERE ${col} = $1 AND activa = true LIMIT 1`,
+      [toNumber]
+    );
+    if (rows.length) return rows[0].id;
+
+    logger.warn('Número destino no registrado en escuelas — asignando Fundación Matriz', {
+      toNumber, canal, fallback: ESCUELA_FUNDACION,
+    });
+    return ESCUELA_FUNDACION;
+  } catch (err) {
+    logger.error('Error al resolver escuela — usando fallback', { error: err.message });
+    return ESCUELA_FUNDACION;
+  }
+}
+
+// ── POST /api/webhook/nuevo-contacto ─────────────────────────────────────────
 router.post('/nuevo-contacto', async (req, res, next) => {
   const t0 = Date.now();
 
   try {
-    const { from, canal = 'voz' } = req.body ?? {};
+    // `to` = número de destino (identifica la escuela)
+    // `from` = número del alumno/apoderado
+    const { from, to = null, canal = 'voz' } = req.body ?? {};
 
     if (!from || typeof from !== 'string' || from.trim() === '') {
       return res.status(400).json({
@@ -32,40 +60,41 @@ router.post('/nuevo-contacto', async (req, res, next) => {
       });
     }
 
-    const t1 = Date.now(); // checkpoint: payload validado
+    const t1 = Date.now(); // payload validado
 
-    const key = getEncryptionKey();
-    const telefonoCifrado = encrypt(from.trim(), key);
+    // Enrutamiento + cifrado en paralelo (ambos son rápidos)
+    const [escuelaId, telefonoCifrado] = await Promise.all([
+      resolverEscuela(to?.trim() ?? null, canal),
+      Promise.resolve(encrypt(from.trim(), getEncryptionKey())),
+    ]);
 
-    const t2 = Date.now(); // checkpoint: cifrado completado
+    const t2 = Date.now(); // cifrado + escuela resuelta
 
     const timerExpiraAt = new Date(Date.now() + TIMER_MS[canal]);
 
     const result = await query(
-      `INSERT INTO contactos (telefono_cifrado, canal, estado, timer_expira_at)
-       VALUES ($1, $2, 'en_curso', $3)
+      `INSERT INTO contactos (telefono_cifrado, canal, estado, timer_expira_at, escuela_id)
+       VALUES ($1, $2, 'en_curso', $3, $4)
        RETURNING id`,
-      [telefonoCifrado, canal, timerExpiraAt]
+      [telefonoCifrado, canal, timerExpiraAt, escuelaId]
     );
 
     const contactId = result.rows[0].id;
-    const t3 = Date.now(); // checkpoint: contacto guardado
+    const t3 = Date.now(); // contacto guardado
 
-    // Registro de interacción fuera del camino crítico
+    // Interacción fuera del camino crítico
     query(
       `INSERT INTO interacciones (contacto_id, tipo, payload)
        VALUES ($1, 'webhook_recibido', $2)`,
-      [contactId, JSON.stringify({ canal, receivedAt: new Date().toISOString() })]
-    ).catch((err) =>
-      logger.error('Error al registrar interaccion', { error: err.message, contactId })
-    );
+      [contactId, JSON.stringify({ canal, to, receivedAt: new Date().toISOString() })]
+    ).catch(err => logger.error('Error al registrar interaccion', { error: err.message, contactId }));
 
-    logger.info('Contacto capturado', { contactId, canal, ms: t3 - t0 });
+    logger.info('Contacto capturado', { contactId, canal, escuelaId, ms: t3 - t0 });
 
-    // ── Respuesta 201 inmediata (camino crítico <100ms) ──────────────────────
     res.status(201).json({
       success: true,
       contactId,
+      escuelaId,
       estado: 'en_curso',
       message: 'Capturado en Fase Cero exitosamente',
       checkpoints: {
@@ -77,7 +106,7 @@ router.post('/nuevo-contacto', async (req, res, next) => {
       totalResponseTime: Date.now() - t0,
     });
 
-    // ── Clasificación IA en background (fuera del camino crítico) ────────────
+    // IA en background
     if (process.env.ANTHROPIC_API_KEY) {
       clasificarCaso({ canal })
         .then(({ clasificacion, metadata }) =>
@@ -86,9 +115,7 @@ router.post('/nuevo-contacto', async (req, res, next) => {
             [JSON.stringify({ clasificacion, ia: metadata }), contactId]
           )
         )
-        .catch(err =>
-          logger.error('Error en clasificación IA', { error: err.message, contactId })
-        );
+        .catch(err => logger.error('Error en clasificación IA', { error: err.message, contactId }));
     }
 
   } catch (err) {

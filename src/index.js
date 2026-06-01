@@ -26,8 +26,8 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOS
 app.use('/api/webhook',           webhookRoutes);
 app.use('/api/webhook/vapi',      vapiRoutes);
 app.use('/api/webhook/whatsapp',  whatsappRoutes);
-app.use('/api/contactos',         contactosRoutes);
-app.use('/api',                   apiRoutes);
+app.use('/api',                   apiRoutes);        // multi-tenant RBAC (stats, recientes, config, escuelas)
+app.use('/api/contactos',         contactosRoutes);  // legacy fallback
 
 app.use(errorHandler);
 
