@@ -1,0 +1,29 @@
+{
+  "name": "colegio-backend-fase-cero",
+  "version": "1.0.0",
+  "description": "Backend omnicanal de orientación escolar - Fase Cero",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "test": "node --test tests/**/*.test.js",
+    "migrate": "node scripts/migrate.js",
+    "test:crypto": "node tests/encryption.test.js"
+  },
+  "keywords": [
+    "omnicanal",
+    "orientación",
+    "escolar",
+    "vapi",
+    "whatsapp",
+    "encryption"
+  ],
+  "author": "patograndon",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "dotenv": "^16.3.1"
+  }
+}
