@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { query } from '../config/database.js';
 import { logger } from '../utils/logger.js';
+import { getStats, getRecientes } from '../services/contactService.js';
 
 const router = Router();
 
@@ -28,30 +29,11 @@ router.get('/escuelas', async (req, res, next) => {
 });
 
 // ── GET /api/contactos/stats ──────────────────────────────────────────────────
-// Reemplaza la ruta en contactos.js con soporte multi-tenant
 router.get('/contactos/stats', async (req, res, next) => {
   try {
     const escuelaId = getEscuelaFiltro(req);
-    const filtro    = escuelaId ? 'AND escuela_id = $1' : '';
-    const params    = escuelaId ? [escuelaId] : [];
-
-    const { rows } = await query(`
-      SELECT
-        COUNT(*) FILTER (WHERE estado = 'completado') AS verde,
-        COUNT(*) FILTER (
-          WHERE estado = 'en_curso'
-            AND (timer_expira_at IS NULL OR timer_expira_at > NOW())
-        ) AS amarillo,
-        COUNT(*) FILTER (
-          WHERE estado IN ('intento_fallido', 'abandonado')
-             OR (estado = 'en_curso' AND timer_expira_at IS NOT NULL AND timer_expira_at <= NOW())
-        ) AS rojo,
-        COUNT(*) AS total
-      FROM contactos
-      WHERE TRUE ${filtro}
-    `, params);
-
-    res.json({ success: true, ...rows[0], escuela_id: escuelaId, ts: new Date().toISOString() });
+    const stats = await getStats(escuelaId);
+    res.json({ success: true, ...stats, escuela_id: escuelaId, ts: new Date().toISOString() });
   } catch (err) { next(err); }
 });
 
@@ -59,20 +41,8 @@ router.get('/contactos/stats', async (req, res, next) => {
 router.get('/contactos/recientes', async (req, res, next) => {
   try {
     const escuelaId = getEscuelaFiltro(req);
-    const filtro    = escuelaId ? 'AND c.escuela_id = $1' : '';
-    const params    = escuelaId ? [escuelaId] : [];
-
-    const { rows } = await query(`
-      SELECT c.id, c.canal, c.estado, c.timer_expira_at, c.created_at,
-             e.nombre_escuela, e.id AS escuela_id
-      FROM contactos c
-      LEFT JOIN escuelas e ON e.id = c.escuela_id
-      WHERE TRUE ${filtro}
-      ORDER BY c.created_at DESC
-      LIMIT 20
-    `, params);
-
-    res.json({ success: true, contactos: rows });
+    const contactos = await getRecientes(escuelaId);
+    res.json({ success: true, contactos });
   } catch (err) { next(err); }
 });
 

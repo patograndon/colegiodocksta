@@ -27,6 +27,13 @@ export const initializeDatabase = () => {
   });
 
   logger.info('Pool PostgreSQL inicializado', { max: 10 });
+
+  // Warm-up: abre una conexión al arrancar para eliminar cold-start (405ms → <10ms)
+  pool.query('SELECT 1').then(() =>
+    logger.info('Pool warm-up completado')
+  ).catch(err =>
+    logger.warn('Pool warm-up fallido (BD no disponible todavía)', { error: err.message })
+  );
 };
 
 export const query = async (text, params) => {
