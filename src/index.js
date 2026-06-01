@@ -8,7 +8,8 @@ import { performanceMonitor } from './middleware/performanceMonitor.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import webhookRoutes from './routes/webhooks.js';
 import contactosRoutes from './routes/contactos.js';
-import vapiRoutes from './routes/vapi.js';
+import vapiRoutes       from './routes/vapi.js';
+import whatsappRoutes   from './routes/whatsapp.js';
 
 dotenv.config();
 
@@ -21,9 +22,10 @@ app.use(express.json());
 app.use(performanceMonitor);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
-app.use('/api/webhook',      webhookRoutes);
-app.use('/api/webhook/vapi', vapiRoutes);
-app.use('/api/contactos',    contactosRoutes);
+app.use('/api/webhook',           webhookRoutes);
+app.use('/api/webhook/vapi',      vapiRoutes);
+app.use('/api/webhook/whatsapp',  whatsappRoutes);
+app.use('/api/contactos',         contactosRoutes);
 
 app.use(errorHandler);
 
