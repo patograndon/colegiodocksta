@@ -25,11 +25,93 @@
       100% { transform: scale(1); }
     }
     .count-pop { animation: pop .25s ease-out; }
+
+    @keyframes modal-in {
+      from { opacity: 0; transform: scale(.96) translateY(8px); }
+      to   { opacity: 1; transform: scale(1)   translateY(0);   }
+    }
+    .modal-in { animation: modal-in .2s ease-out; }
   </style>
 </head>
 <body class="bg-slate-100 min-h-screen antialiased">
 
-  <!-- ── HEADER ───────────────────────────────────────────── -->
+  <!-- ── MODAL CONFIGURACIÓN ──────────────────────────────────── -->
+  <div id="modal-cfg" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg modal-in">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <h2 class="text-base font-bold text-slate-800">Configuración del Sistema</h2>
+        </div>
+        <button onclick="cerrarConfig()" class="text-slate-400 hover:text-slate-600 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <form id="form-config" class="px-6 py-5 space-y-4" onsubmit="guardarConfig(event)">
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Teléfono del Canal</label>
+          <input id="cfg-telefono" type="tel" placeholder="+56912345678"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                   focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent
+                   placeholder:text-slate-300 transition-all" />
+          <p class="text-xs text-slate-400 mt-1">Número Vapi o WhatsApp asignado a este colegio</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nombre del Encargado</label>
+          <input id="cfg-nombre" type="text" placeholder="Ej: María González"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                   focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent
+                   placeholder:text-slate-300 transition-all" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Rol del Encargado</label>
+          <select id="cfg-rol"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                   focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent
+                   bg-white transition-all">
+            <option value="orientador">Orientador</option>
+            <option value="psicologo">Psicólogo</option>
+            <option value="convivencia">Convivencia Escolar</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Email para Alertas</label>
+          <input id="cfg-email" type="email" placeholder="orientacion@colegiodocksta.cl"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm
+                   focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent
+                   placeholder:text-slate-300 transition-all" />
+          <p class="text-xs text-slate-400 mt-1">Recibe alertas de Caso 5 — Emergencia Vital</p>
+        </div>
+
+        <div id="cfg-msg" class="hidden text-xs font-semibold px-3 py-2 rounded-lg"></div>
+
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" onclick="cerrarConfig()"
+            class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 transition-colors">
+            Cancelar
+          </button>
+          <button type="submit" id="btn-guardar"
+            class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold
+                   rounded-xl transition-colors flex items-center gap-2">
+            <span id="btn-txt">Guardar cambios</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── HEADER ───────────────────────────────────────────────── -->
   <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-10">
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
@@ -44,7 +126,27 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3">
+        <!-- Encargado activo -->
+        <div id="badge-encargado" class="hidden sm:flex items-center gap-1.5 text-xs font-medium
+             px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+          <span id="txt-encargado">—</span>
+        </div>
+
+        <!-- Botón configuración -->
+        <button onclick="abrirConfig()"
+          class="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full
+                 bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          Config
+        </button>
+
         <div id="badge-live"
              class="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5
                     rounded-full bg-emerald-100 text-emerald-700 transition-all">
@@ -57,80 +159,60 @@
     </div>
   </header>
 
-  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <!-- ── MAIN ─────────────────────────────────────────────────── -->
   <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
 
-    <!-- SEMÁFORO ------------------------------------------- -->
+    <!-- SEMÁFORO ------------------------------------------------ -->
     <section>
       <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">
         Semáforo de Casos en Tiempo Real
       </p>
-
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-        <!-- ROJO -->
-        <div id="card-rojo"
-             class="bg-white rounded-2xl p-6 border border-red-100
-                    transition-all duration-300 hover:shadow-md">
+        <div id="card-rojo" class="bg-white rounded-2xl p-6 border border-red-100 transition-all duration-300 hover:shadow-md">
           <div class="flex items-start justify-between mb-5">
-            <div class="w-12 h-12 rounded-full bg-red-500 shadow-lg shadow-red-200
-                        flex items-center justify-center">
+            <div class="w-12 h-12 rounded-full bg-red-500 shadow-lg shadow-red-200 flex items-center justify-center">
               <div class="w-5 h-5 rounded-full bg-white/80"></div>
             </div>
-            <span class="text-xs font-bold px-2.5 py-1 rounded-full
-                         bg-red-50 text-red-500 tracking-wide">ATENCIÓN</span>
+            <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-red-50 text-red-500 tracking-wide">ATENCIÓN</span>
           </div>
           <p id="n-rojo" class="text-5xl font-black text-red-500 leading-none mb-1">—</p>
           <p class="text-sm font-semibold text-slate-700">Fallidos / Abandonados</p>
           <p class="text-xs text-slate-400 mt-1">Requieren seguimiento</p>
         </div>
 
-        <!-- AMARILLO -->
-        <div class="bg-white rounded-2xl p-6 border border-amber-100
-                    transition-all duration-300 hover:shadow-md">
+        <div class="bg-white rounded-2xl p-6 border border-amber-100 transition-all duration-300 hover:shadow-md">
           <div class="flex items-start justify-between mb-5">
-            <div class="w-12 h-12 rounded-full bg-amber-400 shadow-lg shadow-amber-200
-                        flex items-center justify-center">
+            <div class="w-12 h-12 rounded-full bg-amber-400 shadow-lg shadow-amber-200 flex items-center justify-center">
               <div class="w-5 h-5 rounded-full bg-white/80"></div>
             </div>
-            <span class="text-xs font-bold px-2.5 py-1 rounded-full
-                         bg-amber-50 text-amber-500 tracking-wide">EN CURSO</span>
+            <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-500 tracking-wide">EN CURSO</span>
           </div>
           <p id="n-amarillo" class="text-5xl font-black text-amber-500 leading-none mb-1">—</p>
           <p class="text-sm font-semibold text-slate-700">En Proceso</p>
           <p class="text-xs text-slate-400 mt-1">Dentro del período activo</p>
         </div>
 
-        <!-- VERDE -->
-        <div class="bg-white rounded-2xl p-6 border border-emerald-100
-                    transition-all duration-300 hover:shadow-md">
+        <div class="bg-white rounded-2xl p-6 border border-emerald-100 transition-all duration-300 hover:shadow-md">
           <div class="flex items-start justify-between mb-5">
-            <div class="w-12 h-12 rounded-full bg-emerald-500 shadow-lg shadow-emerald-200
-                        flex items-center justify-center">
+            <div class="w-12 h-12 rounded-full bg-emerald-500 shadow-lg shadow-emerald-200 flex items-center justify-center">
               <div class="w-5 h-5 rounded-full bg-white/80"></div>
             </div>
-            <span class="text-xs font-bold px-2.5 py-1 rounded-full
-                         bg-emerald-50 text-emerald-600 tracking-wide">EXITOSO</span>
+            <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600 tracking-wide">EXITOSO</span>
           </div>
           <p id="n-verde" class="text-5xl font-black text-emerald-600 leading-none mb-1">—</p>
           <p class="text-sm font-semibold text-slate-700">Completados</p>
           <p class="text-xs text-slate-400 mt-1">Captura exitosa</p>
         </div>
 
-        <!-- TOTAL -->
-        <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl p-6
-                    text-white shadow-lg shadow-indigo-200 hover:shadow-xl transition-all duration-300">
+        <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl p-6 text-white shadow-lg shadow-indigo-200 hover:shadow-xl transition-all duration-300">
           <div class="flex items-start justify-between mb-5">
             <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857
-                     M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857
-                     m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
             </div>
-            <span class="text-xs font-bold px-2.5 py-1 rounded-full
-                         bg-white/20 text-white tracking-wide">TOTAL</span>
+            <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-white/20 text-white tracking-wide">TOTAL</span>
           </div>
           <p id="n-total" class="text-5xl font-black leading-none mb-1">—</p>
           <p class="text-sm font-semibold text-indigo-100">Contactos Captados</p>
@@ -140,7 +222,7 @@
       </div>
     </section>
 
-    <!-- TABLA DE CONTACTOS RECIENTES ----------------------- -->
+    <!-- TABLA DE CONTACTOS ------------------------------------- -->
     <section>
       <div class="flex items-center justify-between mb-4">
         <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">
@@ -161,15 +243,15 @@
                 <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Canal</th>
                 <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Estado</th>
                 <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Timer</th>
+                <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Encargado Asignado</th>
                 <th class="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Recibido</th>
               </tr>
             </thead>
             <tbody id="tbody">
               <tr>
-                <td colspan="5" class="px-6 py-16 text-center">
+                <td colspan="6" class="px-6 py-16 text-center">
                   <div class="flex flex-col items-center gap-3 text-slate-400">
-                    <div class="w-8 h-8 border-[3px] border-slate-200 border-t-indigo-500
-                                rounded-full animate-spin"></div>
+                    <div class="w-8 h-8 border-[3px] border-slate-200 border-t-indigo-500 rounded-full animate-spin"></div>
                     <span class="text-sm">Conectando con la API…</span>
                   </div>
                 </td>
@@ -182,7 +264,6 @@
 
   </main>
 
-  <!-- ── FOOTER ───────────────────────────────────────────── -->
   <footer class="text-center py-6 text-xs text-slate-400 space-x-2">
     <span>Colegio Docksta</span>
     <span class="text-slate-300">·</span>
@@ -191,9 +272,11 @@
     <span>AES-256-GCM · &lt; 100ms</span>
   </footer>
 
-  <!-- ── SCRIPT ────────────────────────────────────────────── -->
   <script>
-    // ── helpers ──────────────────────────────────────────────
+    // ── Estado global ─────────────────────────────────────────
+    let configActual = { nombre_encargado: '—', rol_encargado: 'orientador' };
+
+    // ── Helpers ───────────────────────────────────────────────
     const timeAgo = (iso) => {
       const s = Math.floor((Date.now() - new Date(iso)) / 1000);
       if (s <  60) return `hace ${s}s`;
@@ -202,82 +285,128 @@
     };
 
     const timerHTML = (iso, estado) => {
-      if (!iso || estado !== 'en_curso')
-        return '<span class="text-slate-300 select-none">—</span>';
+      if (!iso || estado !== 'en_curso') return '<span class="text-slate-300 select-none">—</span>';
       const rem = Math.floor((new Date(iso) - Date.now()) / 1000);
-      if (rem <= 0)
-        return '<span class="font-semibold text-red-500">Vencido</span>';
+      if (rem <= 0) return '<span class="font-semibold text-red-500">Vencido</span>';
       const m = Math.floor(rem / 60), s = rem % 60;
-      const cls = rem < 30  ? 'text-red-500'
-                : rem < 120 ? 'text-amber-500'
-                :              'text-emerald-600';
+      const cls = rem < 30 ? 'text-red-500' : rem < 120 ? 'text-amber-500' : 'text-emerald-600';
       return `<span class="font-mono font-semibold ${cls}">${m}:${String(s).padStart(2,'0')}</span>`;
     };
 
     const estadoBadge = (e) => {
       const cfg = {
-        en_curso:       ['bg-amber-100   text-amber-700',   'En Curso'],
-        completado:     ['bg-emerald-100 text-emerald-700', 'Completado'],
-        intento_fallido:['bg-red-100     text-red-700',     'Fallido'],
-        abandonado:     ['bg-slate-100   text-slate-600',   'Abandonado'],
+        en_curso:        ['bg-amber-100 text-amber-700',    'En Curso'],
+        completado:      ['bg-emerald-100 text-emerald-700','Completado'],
+        intento_fallido: ['bg-red-100 text-red-700',        'Fallido'],
+        abandonado:      ['bg-slate-100 text-slate-600',    'Abandonado'],
       };
       const [cls, label] = cfg[e] ?? ['bg-slate-100 text-slate-500', e];
       return `<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${cls}">${label}</span>`;
     };
 
-    const canalBadge = (c) => c === 'voz'
-      ? `<span class="inline-flex items-center gap-1 text-xs font-medium text-indigo-600">
-           <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-             <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0
-                      01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1
-                      1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1
-                      1h-2C7.82 18 2 12.18 2 5V3z"/>
-           </svg>Voz</span>`
-      : `<span class="inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
-           <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15
-                      -.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463
-                      -2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606
-                      .134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371
-                      -.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51
-                      -.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04
-                      1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2
-                      5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118
-                      .571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413
-                      -.074-.124-.272-.198-.57-.347z"/>
-             <path d="M12 0C5.373 0 0 5.373 0 12c0 2.1.546 4.07 1.5 5.787L0 24l6.385-1.473
-                      A11.955 11.955 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0
-                      21.6c-1.99 0-3.85-.553-5.437-1.507l-.39-.228-4.04.931.976-3.965
-                      -.25-.405A9.571 9.571 0 012.4 12C2.4 6.698 6.698 2.4 12
-                      2.4S21.6 6.698 21.6 12 17.302 21.6 12 21.6z"/>
-           </svg>WhatsApp</span>`;
+    const rolLabel = (r) => ({ psicologo: 'Psicólogo', orientador: 'Orientador', convivencia: 'Convivencia' }[r] ?? r);
 
-    // ── estado de conexión ────────────────────────────────────
+    const canalBadge = (c) => c === 'voz'
+      ? `<span class="inline-flex items-center gap-1 text-xs font-medium text-indigo-600"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>Voz</span>`
+      : `<span class="inline-flex items-center gap-1 text-xs font-medium text-emerald-600"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.1.546 4.07 1.5 5.787L0 24l6.385-1.473A11.955 11.955 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.6c-1.99 0-3.85-.553-5.437-1.507l-.39-.228-4.04.931.976-3.965-.25-.405A9.571 9.571 0 012.4 12C2.4 6.698 6.698 2.4 12 2.4S21.6 6.698 21.6 12 17.302 21.6 12 21.6z"/></svg>WhatsApp</span>`;
+
+    // ── Conexión ──────────────────────────────────────────────
     const setLive = (ok) => {
       const b = document.getElementById('badge-live');
-      b.className = `flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full
-        transition-all ${ok
-          ? 'bg-emerald-100 text-emerald-700'
-          : 'bg-red-100    text-red-600'}`;
+      b.className = `flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${ok ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`;
       b.innerHTML = ok
         ? '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> EN VIVO'
         : '<span class="w-2 h-2 rounded-full bg-red-500"></span> SIN CONEXIÓN';
-      if (ok)
-        document.getElementById('txt-updated').textContent =
-          'Actualizado ' + new Date().toLocaleTimeString('es-CL');
+      if (ok) document.getElementById('txt-updated').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-CL');
     };
 
-    // ── actualizar contador con animación ────────────────────
     const setCount = (id, val) => {
       const el = document.getElementById(id);
       if (el.textContent === String(val)) return;
       el.textContent = val;
       el.classList.remove('count-pop');
-      void el.offsetWidth;              // reflow para reiniciar animación
+      void el.offsetWidth;
       el.classList.add('count-pop');
     };
 
-    // ── fetch stats ──────────────────────────────────────────
+    // ── Config ────────────────────────────────────────────────
+    async function loadConfig() {
+      try {
+        const { config } = await fetch('/api/config').then(r => r.json());
+        configActual = config;
+        const badge = document.getElementById('badge-encargado');
+        document.getElementById('txt-encargado').textContent =
+          `${config.nombre_encargado} · ${rolLabel(config.rol_encargado)}`;
+        badge.classList.remove('hidden');
+      } catch { /* silent */ }
+    }
+
+    function abrirConfig() {
+      document.getElementById('cfg-telefono').value = configActual.telefono_asignado ?? '';
+      document.getElementById('cfg-nombre').value   = configActual.nombre_encargado  ?? '';
+      document.getElementById('cfg-rol').value      = configActual.rol_encargado     ?? 'orientador';
+      document.getElementById('cfg-email').value    = configActual.email_alertas     ?? '';
+      document.getElementById('cfg-msg').classList.add('hidden');
+      const modal = document.getElementById('modal-cfg');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function cerrarConfig() {
+      const modal = document.getElementById('modal-cfg');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    async function guardarConfig(e) {
+      e.preventDefault();
+      const btn  = document.getElementById('btn-guardar');
+      const txt  = document.getElementById('btn-txt');
+      const msg  = document.getElementById('cfg-msg');
+      btn.disabled = true;
+      txt.textContent = 'Guardando…';
+
+      try {
+        const body = {
+          telefono_asignado: document.getElementById('cfg-telefono').value.trim() || null,
+          nombre_encargado:  document.getElementById('cfg-nombre').value.trim()   || 'Orientador Docksta',
+          rol_encargado:     document.getElementById('cfg-rol').value,
+          email_alertas:     document.getElementById('cfg-email').value.trim()    || null,
+        };
+
+        const res  = await fetch('/api/config', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          configActual = data.config;
+          document.getElementById('txt-encargado').textContent =
+            `${data.config.nombre_encargado} · ${rolLabel(data.config.rol_encargado)}`;
+          document.getElementById('badge-encargado').classList.remove('hidden');
+          msg.className = 'text-xs font-semibold px-3 py-2 rounded-lg bg-emerald-50 text-emerald-700';
+          msg.textContent = '✅ Configuración guardada correctamente';
+          msg.classList.remove('hidden');
+          setTimeout(cerrarConfig, 1200);
+        } else {
+          throw new Error(data.error);
+        }
+      } catch (err) {
+        msg.className = 'text-xs font-semibold px-3 py-2 rounded-lg bg-red-50 text-red-600';
+        msg.textContent = `❌ Error: ${err.message}`;
+        msg.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        txt.textContent = 'Guardar cambios';
+      }
+    }
+
+    // Cerrar modal al click fuera
+    document.getElementById('modal-cfg').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) cerrarConfig();
+    });
+
+    // ── Stats ─────────────────────────────────────────────────
     async function loadStats() {
       try {
         const d = await fetch('/api/contactos/stats').then(r => r.json());
@@ -285,57 +414,56 @@
         setCount('n-amarillo', d.amarillo);
         setCount('n-verde',   d.verde);
         setCount('n-total',   d.total);
-
-        const card = document.getElementById('card-rojo');
-        d.rojo > 0
-          ? card.classList.add('alert-ring')
-          : card.classList.remove('alert-ring');
-
+        document.getElementById('card-rojo').classList.toggle('alert-ring', d.rojo > 0);
         setLive(true);
       } catch { setLive(false); }
     }
 
-    // ── fetch recientes ──────────────────────────────────────
+    // ── Recientes ─────────────────────────────────────────────
     async function loadRecientes() {
       try {
         const { contactos } = await fetch('/api/contactos/recientes').then(r => r.json());
         const tbody = document.getElementById('tbody');
+        const encargado = configActual.nombre_encargado ?? '—';
+        const rolColor  = { psicologo: 'text-purple-600', orientador: 'text-indigo-600', convivencia: 'text-teal-600' };
+        const cls       = rolColor[configActual.rol_encargado] ?? 'text-slate-600';
 
         if (!contactos.length) {
-          tbody.innerHTML = `
-            <tr><td colspan="5" class="px-6 py-16 text-center text-slate-400 text-sm">
-              Sin contactos todavía. Esperando primer webhook…
-            </td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-16 text-center text-slate-400 text-sm">Sin contactos todavía. Esperando primer webhook…</td></tr>`;
           return;
         }
 
         tbody.innerHTML = contactos.map((c, i) => `
-          <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50
-                     transition-colors row-in" style="animation-delay:${i * 25}ms">
+          <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors row-in"
+              style="animation-delay:${i * 25}ms">
             <td class="px-6 py-4 font-mono text-slate-400 text-xs">#${c.id}</td>
             <td class="px-6 py-4">${canalBadge(c.canal)}</td>
             <td class="px-6 py-4">${estadoBadge(c.estado)}</td>
             <td class="px-6 py-4">${timerHTML(c.timer_expira_at, c.estado)}</td>
+            <td class="px-6 py-4">
+              <button onclick="abrirConfig()"
+                class="inline-flex items-center gap-1.5 text-xs font-medium ${cls} hover:underline underline-offset-2 transition-colors">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                ${encargado}
+              </button>
+            </td>
             <td class="px-6 py-4 text-slate-400 text-xs whitespace-nowrap">${timeAgo(c.created_at)}</td>
           </tr>`).join('');
-      } catch { /* mantiene la tabla anterior */ }
+      } catch { /* keep previous */ }
     }
 
-    // ── ciclo de refresco ────────────────────────────────────
+    // ── Ciclo de refresco ─────────────────────────────────────
     let tick = 5;
-    const cd = document.getElementById('txt-countdown');
-
     setInterval(() => {
       tick--;
-      cd.textContent = tick;
-      if (tick <= 0) {
-        tick = 5;
-        loadStats();
-        loadRecientes();
-      }
+      document.getElementById('txt-countdown').textContent = tick;
+      if (tick <= 0) { tick = 5; loadStats(); loadRecientes(); }
     }, 1000);
 
-    // carga inicial
+    // Carga inicial
+    loadConfig();
     loadStats();
     loadRecientes();
   </script>

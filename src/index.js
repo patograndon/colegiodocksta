@@ -10,6 +10,7 @@ import webhookRoutes from './routes/webhooks.js';
 import contactosRoutes from './routes/contactos.js';
 import vapiRoutes       from './routes/vapi.js';
 import whatsappRoutes   from './routes/whatsapp.js';
+import apiRoutes        from './routes/api.js';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use('/api/webhook',           webhookRoutes);
 app.use('/api/webhook/vapi',      vapiRoutes);
 app.use('/api/webhook/whatsapp',  whatsappRoutes);
 app.use('/api/contactos',         contactosRoutes);
+app.use('/api',                   apiRoutes);
 
 app.use(errorHandler);
 
